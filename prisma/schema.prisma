@@ -12,47 +12,17 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
 
-model student {
-email String @id
+User_id String @id @default(uuid())
+email String @unique
+Phone String? @unique
 First_name String
 Last_Name String
-DOB String
-Age String
-ID_number String
-Address String
-
-}
-
-
-model Course {
-email String @id
-First_name String
-Last_Name String
-DOB String
-Age String
-ID_number String
-Address String
-
-}
-
-model Class {
-email String @id
-First_name String
-Last_Name String
-DOB String
-Age String
-ID_number String
-Address String
-
-}
-model Seccion {
-email String @id
-First_name String
-Last_Name String
-DOB String
-Age String
-ID_number String
-Address String
-
+Password  String
+Role String @default("CUSTOMER")
+Status String @default("ACTIVE") // Active, banned, Susspend
+CreateAt DateTime? @default(now())
+Last_login DateTime?
+Privilages String[] @default([])
 }
