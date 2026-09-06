@@ -26,3 +26,4 @@ CreateAt DateTime? @default(now())
 Last_login DateTime?
 Privilages String[] @default([])
 }
+
