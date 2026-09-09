@@ -25,3 +25,25 @@ export async function getUser(request: NextRequest) {
 
   }
 }
+
+export async function isPrivileged(
+  request: NextRequest,
+  privilege: string
+) {
+
+  const user = await getUser(request);
+
+  if (user === null) {
+    return false;
+  }
+
+  if (!user.privileges) {
+    return false;
+  }
+
+  if (Array.isArray(user.privileges)) {
+    return user.privileges.includes(privilege);
+  }
+
+  return false;
+}

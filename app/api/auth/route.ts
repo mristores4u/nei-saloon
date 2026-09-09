@@ -12,7 +12,15 @@ export async function POST(request: NextRequest){
   if(body.email == null){
     return NextResponse.json({
     message : "Email ekak naha"
+    },
+    {status : 402}
+    )
     }
+  if(body.password == null){
+    return NextResponse.json({
+    message : "PW ekak naha"
+    },
+    {status : 402}
     )
     }
 
@@ -33,9 +41,36 @@ export async function POST(request: NextRequest){
     )
     }
 
+if(user.Status !== "ACTIVE"){
+
+    return NextResponse.json(
+        {
+            message: "Your account is disabled. Please contact the administrator."
+        },
+    {status : 403}
+    )
+}
+
+
     const isPasswordValid = await compare(body.password, user.Password);
 
     if(isPasswordValid){
+
+      await prisma.user.update(
+{
+where :{
+
+  User_id : user.User_id
+},
+data : {
+
+Last_login : new Date()
+}
+
+}
+
+
+      )
 
 const secretText = process.env.JOSE_SECRET; // Athana dala tiyenne metanin
 
@@ -72,7 +107,8 @@ return response;
   return NextResponse.json(
     {
       message: "Invalid password"
-    }
+    },
+    {status : 401}
   )
 
 }
