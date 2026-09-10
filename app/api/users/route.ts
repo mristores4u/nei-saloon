@@ -19,17 +19,17 @@ export async function GET(request: NextRequest) {
     }
 
     const users = await prisma.user.findMany({
-      select: {
-  User_id: true,
-  email: true,
-  Phone: true,
-  First_name: true,
-  Last_Name: true,
-  Role: true,
-  Status: true,
-  CreateAt: true,
-  Last_login: true,
-  Privilages: true,
+        select: {
+        User_id: true,
+        email: true,
+        Phone: true,
+        First_name: true,
+        Last_Name: true,
+        Role: true,
+        Status: true,
+        CreateAt: true,
+        Last_login: true,
+        Privilages: true,
 },
     });
 
@@ -160,7 +160,7 @@ export async function PUT(request : NextRequest){
         )
     }
 
-    if(requestedUser.id == id){
+    if(requestedUser.User_id == id){
         // user is trying to update their own account, allow it
         
 

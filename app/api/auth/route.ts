@@ -77,6 +77,7 @@ const secretText = process.env.JOSE_SECRET; // Athana dala tiyenne metanin
 const secret = new TextEncoder().encode(secretText);
 
 const token = await new jose.SignJWT({
+  User_id: user.User_id,
   email: user.email,
   firstName: user.First_name,
   lastName: user.Last_Name,
