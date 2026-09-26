@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { compare } from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import * as jose from "jose";
+import { use } from "react";
 
 export async function POST(request: NextRequest){
 
@@ -82,13 +83,15 @@ const token = await new jose.SignJWT({
   firstName: user.First_name,
   lastName: user.Last_Name,
   role: user.Role,
-  privileges: user.Privilages
+  privileges: user.Privilages,
+  Last_login : user.Last_login
 }).setProtectedHeader({ alg: "HS256" }).sign(secret);
 
 const response = NextResponse.json(
   {
     message: "Login successful",
     role: user.Role,
+    Last_login : user.Last_login
   }
 );
 
@@ -114,4 +117,3 @@ return response;
 
 }
 }
-
