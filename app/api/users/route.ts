@@ -1,7 +1,11 @@
 import prisma from "@/lib/prisma"; 
+import { UserRegistrationRequest } from "@/types/dto/UserRegistrationRequest";
+import { UserRegistrationRequestSchema } from "@/types/dto/UserRegistrationRequest";
+import { UserUpdateByAdminRequestSchema } from "@/types/dto/UserUpdateByAdminRequest";
 import { getUser, isPrivileged } from "@/utils/authentication"; 
 import bcrypt from "bcryptjs"; 
 import { NextRequest, NextResponse } from "next/server"; 
+import z from "zod";
  
 export async function GET(request: NextRequest) { 
   try { 
@@ -89,54 +93,17 @@ export async function POST(request : NextRequest){
  
     const body = await request.json() 
  
-    if(body.email == null){ 
-        return NextResponse.json( 
-            { 
-                message : "Email is required" 
-            }, 
-            { 
-                status : 422 
-            } 
-        ) 
-    } 
- 
-    if(body.firstName == null){ 
-        return NextResponse.json( 
-            { 
-                message : "First name is required" 
-            }, 
-            { 
-                status : 422 
-            } 
-        ) 
-    } 
- 
-    if(body.lastName == null){ 
-        return NextResponse.json( 
-            { 
-                message : "Last name is required" 
-            }, 
-            { 
-                status : 422 
-            } 
-        ) 
-    } 
- 
-    if(body.password == null){ 
-        return NextResponse.json( 
-            { 
-                message : "Password is required" 
-            }, 
-            { 
-                status : 422 
-            } 
-        ) 
-    } 
+    //validate the body using zod
+
+    try{
+    const parsedBody = UserRegistrationRequestSchema.parse(body)
+    console.log(parsedBody)
+    
  
     const existingUser = await prisma.user.findUnique( 
         { 
             where : { 
-                email : body.email 
+                email : parsedBody.email 
             } 
         } 
     ) 
@@ -152,13 +119,13 @@ export async function POST(request : NextRequest){
         ) 
     } 
  
-    const passwordHash = await bcrypt.hash(body.password, 12) 
+    const passwordHash = await bcrypt.hash(body.Password, 12) 
  
     await prisma.user.create({ 
         data :{ 
             email : body.email, 
-            First_name : body.firstName, 
-            Last_Name : body.lastName, 
+            First_name : body.First_name, 
+            Last_Name : body.Last_Name, 
             Password : passwordHash, 
             phone : body.phone, 
         } 
@@ -172,7 +139,36 @@ export async function POST(request : NextRequest){
             status : 201 
         } 
     ) 
- 
+ }catch(error){
+
+
+    if(error instanceof z.ZodError){
+  console.log(error.issues[0]?.message ?? "Invalid input")
+}
+
+console.log(error)
+return NextResponse.json(
+  {
+    message: "Invalid request body",
+    error: error
+  },
+  {
+    status: 400
+  }
+)
+
+    console.log(error)
+
+    return NextResponse.json(
+        {
+        message: "Invalid request body", 
+        error : error
+        },
+        {
+        status: 400
+        }
+    )
+    }
 } 
  
 export async function PUT(request : NextRequest){ 
@@ -194,11 +190,16 @@ export async function PUT(request : NextRequest){
         ) 
     } 
  
- 
- 
-    if(requestedUser.User_id == id){ 
+        try{
+
+              if(requestedUser.User_id == id){ 
+     
         //never allow users to update their own role, status, privileges 
  
+         UserRegistrationRequestSchema.parse(body)  
+
+
+
         const user = await prisma.user.findUnique({ 
         where: { 
             User_id: id 
@@ -238,7 +239,7 @@ export async function PUT(request : NextRequest){
     }else{ 
  
  
-        const havePrivilege = await isPrivileged(request, "users:edit") 
+        const havePrivilege = await isPrivileged(request, "users:edit")  
  
         if(!havePrivilege){ 
         return NextResponse.json( 
@@ -250,7 +251,11 @@ export async function PUT(request : NextRequest){
  
             } 
         ) 
-        } 
+        }   
+
+
+        UserUpdateByAdminRequestSchema.parse(body)
+
         const user = await prisma.user.findUnique({ 
         where: { 
             User_id: id || "000" 
@@ -291,5 +296,31 @@ export async function PUT(request : NextRequest){
  
  
     } 
+
+        }catch(error){
+
+            if(error instanceof z.ZodError){
+            return NextResponse.json(
+                {
+                message: error.issues[0]?.message ?? "Invalid input",
+                },
+                {
+                status: 400
+                }
+            )
+            }
+
+            return NextResponse.json(
+            {
+                message: "Server error"
+            },
+            {
+                status: 500
+            }
+            )
+
+        }
+ 
+  
      
 } 
