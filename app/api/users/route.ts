@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma"; 
 import { UserRegistrationRequest } from "@/types/dto/UserRegistrationRequest"; 
 import { UserRegistrationRequestSchema } from "@/types/dto/UserRegistrationRequest"; 
-import { UserSelfUpdateRequestSchema } from "@/types/dto/UserSelfUpdateRequest"; 
+import UserSelfUpdateRequestSchema from "@/types/dto/UserSelfUpdateRequest";
 import { UserUpdateByAdminRequestSchema } from "@/types/dto/UserUpdateByAdminRequest"; 
 import { getUser, isPrivileged } from "@/utils/authentication"; 
 import bcrypt from "bcryptjs"; 
